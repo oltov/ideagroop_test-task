@@ -41,9 +41,20 @@
       "parser": "babel-eslint"
     },
     "rules": {
-      "quote-props": ["error", "consistent"],
-      "no-param-reassign": ["off", { "props": false }],
-      "padded-blocks": ["off", "always"]
+      "quote-props": [
+        "error",
+        "consistent"
+      ],
+      "no-param-reassign": [
+        "off",
+        {
+          "props": false
+        }
+      ],
+      "padded-blocks": [
+        "off",
+        "always"
+      ]
     }
   },
   "browserslist": [
