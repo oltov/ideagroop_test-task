@@ -1,0 +1,24 @@
+.modal {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    width: 250px;
+    height: 100px;
+    border-radius: 4px;
+    background-color: #ffffff;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.16);
+    font-size: 14px;
+    text-align: center;
+    z-index: 20;
+
+    &__no-columns {
+        font-size: 20px;
+        border: 2px solid #47a555;
+        border-radius: 4px;
+        padding: 30px 90px;
+        text-align: center;
+        width: 50%;
+        margin: 60px 10% 50%;
+    }
+}

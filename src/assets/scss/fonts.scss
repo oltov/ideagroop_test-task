@@ -1,0 +1,4 @@
+@import 'mixins.scss';
+
+@include fontface(SourceSansPro-Regular, SourceSansPro-Regular, SourceSansPro-Regular, 400, normal);
+@include fontface(SourceSansPro-SemiBold, SourceSansPro-SemiBold, SourceSansPro-SemiBold, 500, normal);

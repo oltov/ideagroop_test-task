@@ -1,0 +1,21 @@
+@import 'fonts.scss';
+@import 'blocks/control-panel.scss';
+@import 'blocks/sort-buttons.scss';
+@import 'blocks/buttons.scss';
+@import 'blocks/select.scss';
+@import 'blocks/table.scss';
+@import 'blocks/modal.scss';
+@import 'blocks/check-lable.scss';
+
+.common {
+    width: 1140px;
+    margin: 0 auto;
+    font-family: 'SourceSansPro-Regular', sans;
+
+    &__title {
+        border-bottom: 1px solid #ededed;
+        font-family: 'SourceSansPro-SemiBold', sans;
+        margin-bottom: 10px;
+        padding-bottom: 20px;
+    }
+}

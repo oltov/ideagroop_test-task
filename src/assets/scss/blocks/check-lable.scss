@@ -1,0 +1,49 @@
+.check {
+
+    &__lable {
+        display: block;
+        width: 10px;
+        height: 10px;
+        margin-left: 20px;
+        border: 1px solid gray;
+        border-radius: 2px;
+        // background-color: transparent;
+        cursor: pointer;
+
+        &--select {
+            position: relative;
+            width: auto;
+            height: auto;
+            border: none;
+
+            &::before {
+                content: '';
+                position: absolute;
+                left: -20px;
+                top: 3px;
+                display: block;
+                width: 10px;
+                height: 10px;
+                border: 1px solid gray;
+                border-radius: 2px;
+                
+            }
+        }
+    }
+
+    &__input--off {
+        display: none;
+    }
+}
+
+.check:checked + .check__lable--select::before  {
+    background: url('/image/check-image.png') no-repeat center;
+    background-color: #00A11E;
+    border-color: #00A11E;    
+}
+
+.check:checked + .check__lable--product  {
+    background: url('/image/check-image.png') no-repeat center;
+    background-color: #00A11E;
+    border-color: #00A11E;    
+}

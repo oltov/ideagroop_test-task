@@ -1,0 +1,13 @@
+// миксин для определения шрифтов
+
+@mixin fontface($family, $localname, $filename, $weight, $style) {
+    @font-face {
+        font-family: $family;
+        src: local('#{$localname}'),
+            url('../../../public/fonts/#{$filename}.woff2') format('woff2'),
+            url('../../../public/fonts/#{$filename}.woff') format('woff');
+        font-weight: $weight;
+        font-style: $style;
+        font-display: swap;
+    }
+}

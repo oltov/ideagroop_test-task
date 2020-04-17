@@ -1,0 +1,55 @@
+.table {
+    width: 100%;
+    border-collapse: collapse;
+
+    &__head,
+    &__body {        
+        height: 50px;
+        text-align: left;
+        cursor: pointer;
+
+        & > td {
+            // padding: 8px 10px;
+            max-width: 220px;
+            height: 30px;
+        }
+    }
+
+    &__body {
+        &:first-child {
+            border-top: 1px solid #ededed;
+            //padding-top: 20px;
+        }
+
+        &:nth-child(2n) {
+            background-color: #F8F9FA;
+        }
+
+        &:hover {
+            background-color: rgba(0, 161, 30, 0.07);
+        }
+    }
+
+    &__head-name {
+        position: relative;
+
+        &:nth-child(2) {
+            cursor: pointer;
+            color: #00A11E;
+        }
+
+        &:nth-child(2)::after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            right: 30%;
+            width: 10px;
+            height: 20px;
+            background: url('/image/Group.png') no-repeat center;
+        }
+    }
+
+    &__bucket {
+        position: relative;
+    }
+}

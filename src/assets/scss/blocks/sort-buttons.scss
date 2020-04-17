@@ -1,0 +1,22 @@
+.sort-buttons {
+    display: flex;
+    margin-right: 50px;
+
+    &__title {
+        margin: 20px 0;
+    }
+
+    &__list {
+        display: flex;
+        list-style: none;
+        padding-left: 10px;
+    }
+
+    &__item {
+        margin-right: 7px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
