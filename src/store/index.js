@@ -52,7 +52,7 @@ export default new Vuex.Store({
     },
   },
   getters: {
-    doneTodos(state) {
+    getTableHeadings(state) {
       return state.tableHeadings;
     },
   },

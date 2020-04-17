@@ -103,7 +103,7 @@
             <input
               type="checkbox"
               :id="item.value"
-              v-model="visibleProducts[item.value]"
+              v-model="isVisibleProducts[item.value]"
               class="check check__input--off"
             >
             <label
@@ -140,7 +140,7 @@
               class="table__head-name"
               v-for="(item, index) in columnHeadings" :key="index"
               v-on="setSortingHandler(item.value, index)"
-              v-show="visibleProducts[item.value]"
+              v-show="isVisibleProducts[item.value]"
             >
              {{ item.name }}
             </th>
@@ -162,22 +162,22 @@
                 :ref="item.id"
                 class="check check__input--off"
                 @click.stop="addSelectedProduct(item.id)"
-                v-model="asd[item.id]"
+                v-model="markedProducts[item.id]"
               >
               <label
                 :for="item.id"
                 class="check check__lable check__lable--product"
               ></label>
             </td>
-            <td v-show="visibleProducts[headings[0]]"> {{ item[headings[0]] }} </td>
-            <td v-show="visibleProducts[headings[1]]"> {{ item[headings[1]] }} </td>
-            <td v-show="visibleProducts[headings[2]]"> {{ item[headings[2]] }} </td>
-            <td v-show="visibleProducts[headings[3]]"> {{ item[headings[3]] }} </td>
-            <td v-show="visibleProducts[headings[4]]"> {{ item[headings[4]] }} </td>
-            <td v-show="visibleProducts[headings[5]]"> {{ item[headings[5]] }} </td>
+            <td v-show="isVisibleProducts[headings[0]]"> {{ item[headings[0]] }} </td>
+            <td v-show="isVisibleProducts[headings[1]]"> {{ item[headings[1]] }} </td>
+            <td v-show="isVisibleProducts[headings[2]]"> {{ item[headings[2]] }} </td>
+            <td v-show="isVisibleProducts[headings[3]]"> {{ item[headings[3]] }} </td>
+            <td v-show="isVisibleProducts[headings[4]]"> {{ item[headings[4]] }} </td>
+            <td v-show="isVisibleProducts[headings[5]]"> {{ item[headings[5]] }} </td>
             <td class="table__bucket" >
               <span
-                :class="{'buttons--delete--on': asd[item.id]}"
+                :class="{'buttons--delete--on': markedProducts[item.id]}"
                 class="buttons buttons--delete--off"
               >
                 Delete
@@ -251,7 +251,7 @@ export default {
       ],
       productsPerPage: 10,
       currentPageIndex: 1,
-      visibleProducts: {
+      isVisibleProducts: {
         'product': true,
         'calories': true,
         'fat': true,
@@ -266,11 +266,11 @@ export default {
       isColumnSelectionList: false,
       sortButtons: null,
       columnHeadings: null,
-      asd: {},
+      markedProducts: {},
     };
   },
   computed: {
-    ...mapState(['tableHeadings', 'errorTextFromServer']),
+    ...mapState(['getTableHeadings', 'errorTextFromServer']),
     tableData() {
       return _chunk(this.$store.state.products, this.productsPerPage)[[this.currentPageIndex - 1]];
     },
@@ -292,10 +292,12 @@ export default {
   },
   watch: {
     tableData() {
-      this.asd = {};
+      // markedProducts объект для хранения состояния(check) продуктов, для v-model
+      // привязка будет по id продукта, переопределяется при каждой загрузке
+      this.markedProducts = {};
       this.tableData.forEach((item) => {
-        const id123 = { ...item };
-        this.asd[id123.id] = false;
+        const product = { ...item };
+        this.markedProducts[product.id] = false;
       });
     },
   },
@@ -354,8 +356,8 @@ export default {
     // перебираем все продукты и переопределяем значение на (false / true)
     // нужно для работы v-show при отрисовки колонок таблицы
     selectAllProducts(checkedValue) {
-      _forIn(this.visibleProducts, (value, key) => {
-        this.visibleProducts[key] = checkedValue;
+      _forIn(this.isVisibleProducts, (value, key) => {
+        this.isVisibleProducts[key] = checkedValue;
       });
     },
     // заполнение массива с id продукта, для удаления из списка продуктов
@@ -375,7 +377,7 @@ export default {
     addAllSelectedProducts(check) {
       if (!check) {
         this.tableData.forEach((item) => {
-          this.asd[item.id] = false;
+          this.markedProducts[item.id] = false;
         });
 
         this.selectedProducts = [];
@@ -386,7 +388,7 @@ export default {
 
         this.tableData.forEach((item) => {
           this.selectedProducts.push(item.id);
-          this.asd[item.id] = true;
+          this.markedProducts[item.id] = true;
         });
       }
     },
@@ -418,6 +420,28 @@ export default {
         this.selectedProducts = [];
       }
     },
+    columnVisibilityManagement() {
+      const numberOfColumns = Object.keys(this.isVisibleProducts).length;
+      let numberNotSelectedColumns = 0;
+
+      _forIn(this.isVisibleProducts, (value) => {
+        if (value === false) numberNotSelectedColumns += 1;
+      });
+
+      if (numberNotSelectedColumns === numberOfColumns) {
+        this.isShowTable = false;
+      }
+
+      else if (numberNotSelectedColumns < numberOfColumns && numberNotSelectedColumns > 0) {
+        this.allColumnsCheck = false;
+        this.isShowTable = true;
+      }
+
+      else {
+        this.allColumnsCheck = true;
+        this.isShowTable = true;
+      }
+    },
     ...mapActions(['getData', 'deleteData']),
   },
   created() {
@@ -426,24 +450,7 @@ export default {
   mounted() {
     this.sortButtons = [...this.tableHeadings];
     this.columnHeadings = [...this.tableHeadings];
-    this.$watch('visibleProducts', function q() {
-      const length5 = Object.keys(this.visibleProducts).length;
-      let stateTrue = 0;
-
-      _forIn(this.visibleProducts, (value) => {
-        if (value === false) stateTrue += 1;
-      });
-
-      if (stateTrue === length5) this.isShowTable = false;
-      else if (stateTrue < length5 && stateTrue > 0) {
-        // eslint-disable-next-line dot-notation
-        this.allColumnsCheck = false;
-        this.isShowTable = true;
-      } else {
-        this.allColumnsCheck = true;
-        this.isShowTable = true;
-      }
-    }, { deep: true });
+    this.$watch('isVisibleProducts', this.columnVisibilityManagement, { deep: true });
   },
 };
 </script>

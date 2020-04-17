@@ -54,6 +54,9 @@
       "padded-blocks": [
         "off",
         "always"
+      ],
+      "brace-style": [
+        "off", "always"
       ]
     }
   },
