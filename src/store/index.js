@@ -51,11 +51,6 @@ export default new Vuex.Store({
       },
     },
   },
-  getters: {
-    getTableHeadings(state) {
-      return state.tableHeadings;
-    },
-  },
   mutations: {
     refreshApiData(state, data) {
       state.products = data;
