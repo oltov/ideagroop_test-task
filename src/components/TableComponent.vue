@@ -270,7 +270,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['getTableHeadings', 'errorTextFromServer']),
+    ...mapState(['tableHeadings', 'errorTextFromServer']),
     tableData() {
       return _chunk(this.$store.state.products, this.productsPerPage)[[this.currentPageIndex - 1]];
     },
