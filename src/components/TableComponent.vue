@@ -226,7 +226,7 @@
 
     <!-- модальное окно с ошибкой удаления -->
 
-    <div v-if="errorDelete.deleteResponse.isError" class="modal modal--fone">
+    <div v-if="errorDelete.deleteResponse.isError" class="modal modal--background">
       <div class="modal modal--error-massage">
         <p>
           При удалении данных произошла ошибка:
@@ -240,7 +240,7 @@
       </div>
 
       <!-- блокирующий фоновый блок модального окна с ошибкой удаления  -->
-      <div class="modal modal--fone"></div>
+      <div class="modal modal--background"></div>
 
     </div>
 </div>
