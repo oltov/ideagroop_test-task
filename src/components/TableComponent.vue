@@ -131,8 +131,8 @@
                 type="checkbox"
                 id="all-prod"
                 class="check check__input--off"
-                :ref="5454"
                 @change="addAllSelectedProducts($event.target.checked)"
+                v-model="allProductsIsCheck"
               >
               <label for="all-prod" class="check check__lable check__lable--product"></label>
             </th>
@@ -189,6 +189,9 @@
         <!-- ============= -->
 
       </table>
+
+      <!-- блок вместо пустой таблицы, когда не выбранно ни одной колонки -->
+
       <div
         v-else-if="!isShowTable && dataLoadingIsError.getResponse.isLoading"
         class="modal__no-columns"
@@ -196,6 +199,7 @@
           <p>Не выбранно ни одной категории для отображения,</p>
           <p>пожалуйста выберите из списка колонок нужную категорию.</p>
       </div>
+
       <div
         v-else-if="!dataLoadingIsError.getResponse.isLoading"
         class="modal__no-columns"
@@ -210,30 +214,34 @@
 
     <!-- попап для подтверждения удаления -->
 
-    <div>
-      <div v-if="popupIsOn" class="modal">
-        <p class="modal__title">Are you sure you want to <b>delete item?</b></p>
-        <button class="buttons buttons--modal" @click="popupIsOn = false">Cancel</button>
+    <div v-if="popupIsOn" class="modal">
+      <p class="modal__title">Are you sure you want to <b>delete item?</b></p>
+      <button class="buttons buttons--modal" @click="popupIsOn = false">Cancel</button>
+      <button
+        class="buttons buttons--active buttons--modal"
+        @click="initiateDataDeletion"
+      >
+        Confirm</button>
+    </div>
+
+    <!-- модальное окно с ошибкой удаления -->
+
+    <div v-if="errorDelete.deleteResponse.isError" class="modal modal--fone">
+      <div class="modal modal--error-massage">
+        <p>
+          При удалении данных произошла ошибка:
+          {{ dataLoadingIsError.deleteResponse.serverMassege }},
+        </p>
+        <p>повторите попытку удаления позже.</p>
         <button
-          class="buttons buttons--active buttons--modal"
-          @click="initiateDataDeletion"
-        >
-          Confirm</button>
+          class="buttons buttons--active"
+          @click="chengeError"
+        >OK</button>
       </div>
-      <div v-if="errorDelete.deleteResponse.isError" class="modal modal--fone">
-        <div class="modal modal--error-massage">
-          <p>
-            При удалении данных произошла ошибка:
-            {{ dataLoadingIsError.deleteResponse.serverMassege }},
-          </p>
-          <p>повторите попытку удаления позже.</p>
-          <button
-            class="buttons buttons--active"
-            @click="chengeError"
-          >OK</button>
-        </div>
-        <div class="modal modal--fone"></div>
-        </div>
+
+      <!-- блокирующий фоновый блок модального окна с ошибкой удаления  -->
+      <div class="modal modal--fone"></div>
+
     </div>
 </div>
 </template>
@@ -272,6 +280,7 @@ export default {
       },
       selectedProducts: [],
       isShowTable: true,
+      allProductsIsCheck: false,
       allColumnsCheck: true,
       popupIsOn: false,
       isColumnSelectionList: false,
@@ -304,6 +313,8 @@ export default {
       if (this.$store.state.responseFromServer.deleteResponse.isDeleted) {
         // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         this.selectedProducts = [];
+        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+        this.allProductsIsCheck = false;
         this.changeIsDelete();
       }
       return this.$store.state.responseFromServer;
