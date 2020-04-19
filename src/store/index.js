@@ -1,5 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import _findIndex from 'lodash/findIndex';
+
 import { getProducts, deleteProducts } from '../../public/request';
 
 Vue.use(Vuex);
@@ -7,6 +9,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     products: [],
+    selectedProducts: [],
     tableHeadings: [
       {
         isActive: true,
@@ -48,7 +51,6 @@ export default new Vuex.Store({
       deleteResponse: {
         isError: false,
         serverMassege: '',
-        isDeleted: false,
       },
     },
   },
@@ -63,7 +65,6 @@ export default new Vuex.Store({
     refreshDeleteResponse(state, status) {
       state.responseFromServer.deleteResponse.isError = status.isError;
       state.responseFromServer.deleteResponse.serverMassege = status.serverMassege;
-      state.responseFromServer.deleteResponse.isDeleted = !status.isError;
     },
     changeIsDelete(state) {
       state.responseFromServer.deleteResponse.isDeleted = false;
@@ -81,8 +82,8 @@ export default new Vuex.Store({
         state.isSortAscending = true;
       }
     },
-    deleteApiData(state, arr) {
-      arr.forEach((id) => {
+    deleteApiData(state) {
+      state.selectedProducts.forEach((id) => {
         state.products.forEach((item, index) => {
           if (item.id === id) {
             state.products.splice(index, 1);
@@ -90,9 +91,19 @@ export default new Vuex.Store({
         });
       });
     },
+    addSelectedProduct(state, id) {
+      const index = _findIndex(state.selectedProducts, (item) => (item === id));
+      if (index > -1) {
+        state.selectedProducts.splice(index, 1);
+      } else {
+        state.selectedProducts.push(id);
+      }
+    },
+    clearSelectedProducts(state) {
+      state.selectedProducts = [];
+    },
   },
   actions: {
-    // метод получает данные и вызывает мутацию refreshApiData
     getData({ commit }) {
       getProducts()
         .then((json) => {
@@ -109,6 +120,7 @@ export default new Vuex.Store({
         .then((resolve) => {
           commit('deleteApiData', data);
           commit('refreshDeleteResponse', { isError: false, serverMassege: resolve.message });
+          commit('clearSelectedProducts');
         })
         .catch((reject) => {
           commit('refreshDeleteResponse', { isError: true, serverMassege: reject.error });

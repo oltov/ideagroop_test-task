@@ -29,11 +29,11 @@
       <div class="control-panel__inner">
         <button
           class="buttons buttons--delete"
-          :class="{'buttons--active': selectedProducts.length > 0}"
-          :disabled="!selectedProducts.length"
+          :class="{'buttons--active': getSelectedProducts.length > 0}"
+          :disabled="!getSelectedProducts.length"
           @click="popupIsOn = true"
         >
-          Delete {{ `\(${selectedProducts.length}\)` }}
+          Delete {{ `\(${getSelectedProducts.length}\)` }}
         </button>
       </div>
 
@@ -132,7 +132,6 @@
                 id="all-prod"
                 class="check check__input--off"
                 @change="addAllSelectedProducts($event.target.checked)"
-                v-model="allProductsIsCheck"
               >
               <label for="all-prod" class="check check__lable check__lable--product"></label>
             </th>
@@ -161,7 +160,7 @@
                 :id="item.id"
                 :ref="item.id"
                 class="check check__input--off"
-                @click.stop="addSelectedProduct(item.id)"
+                @click.stop="setSelectedId(item.id)"
                 v-model="markedProducts[item.id]"
               >
               <label
@@ -226,7 +225,7 @@
 
     <!-- модальное окно с ошибкой удаления -->
 
-    <div v-if="errorDelete.deleteResponse.isError" class="modal modal--background">
+    <div v-if="dataLoadingIsError.deleteResponse.isError" class="modal modal--background">
       <div class="modal modal--error-massage">
         <p>
           При удалении данных произошла ошибка:
@@ -250,7 +249,7 @@
 import { mapActions, mapMutations } from 'vuex';
 import _chunk from 'lodash/chunk';
 import _forIn from 'lodash/forIn';
-import _findIndex from 'lodash/findIndex';
+// import _findIndex from 'lodash/findIndex';
 
 export default {
   name: 'TableHeader',
@@ -274,7 +273,6 @@ export default {
         'protein': true,
         'iron': true,
       },
-      selectedProducts: [],
       isShowTable: true,
       allProductsIsCheck: false,
       allColumnsCheck: true,
@@ -292,6 +290,9 @@ export default {
     tableData() {
       return _chunk(this.$store.state.products, this.productsPerPage)[[this.currentPageIndex - 1]];
     },
+    getSelectedProducts() {
+      return this.$store.state.selectedProducts;
+    },
     lengthTableData() {
       return this.$store.state.products.length / this.productsPerPage;
     },
@@ -305,18 +306,6 @@ export default {
       return this.currentPageIndex * this.productsPerPage;
     },
     dataLoadingIsError() {
-      return this.$store.state.responseFromServer;
-    },
-    errorDelete() {
-      // менять data антипаттерн, нужно переделать логику
-
-      if (this.$store.state.responseFromServer.deleteResponse.isDeleted) {
-        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-        this.selectedProducts = [];
-        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-        this.allProductsIsCheck = false;
-        this.changeIsDelete();
-      }
       return this.$store.state.responseFromServer;
     },
   },
@@ -336,7 +325,14 @@ export default {
   },
   methods: {
     ...mapActions(['getData', 'deleteData']),
-    ...mapMutations(['changeIsDelete', 'changeIsError']),
+    ...mapMutations(
+      [
+        'changeIsDelete',
+        'changeIsError',
+        'addSelectedProduct',
+        'clearSelectedProducts',
+      ],
+    ),
     // переопределение активного состояния кнопок
     // в соответствии с нажатой кнопкой
     setActiveButton(item) {
@@ -397,17 +393,10 @@ export default {
         this.isVisibleProducts[key] = checkedValue;
       });
     },
-    // заполнение массива с id продукта, для удаления из списка продуктов
-    // сначала проверяем наличие id в массиве, если есть, то удаляем id
-    // если нет, то пушим в массив (юзер делает check/uncheck по продукту)
-    addSelectedProduct(id) {
-      const index = _findIndex(this.selectedProducts, (item) => (item === id));
-
-      if (index > -1) {
-        this.selectedProducts.splice(index, 1);
-      } else {
-        this.selectedProducts.push(id);
-      }
+    // вызов мутации при нажатии на продукт,
+    // для добавления в список выбранных продуктов
+    setSelectedId(id) {
+      this.addSelectedProduct(id);
     },
     // собираем массив из всех выбранных продуктов (check all)
     // паралельно чекаем продукты из списка
@@ -417,14 +406,14 @@ export default {
           this.markedProducts[item.id] = false;
         });
 
-        this.selectedProducts = [];
+        this.clearSelectedProducts();
 
       } else {
 
-        this.selectedProducts = [];
+        this.clearSelectedProducts();
 
         this.tableData.forEach((item) => {
-          this.selectedProducts.push(item.id);
+          this.addSelectedProduct(item.id);
           this.markedProducts[item.id] = true;
         });
       }
@@ -435,8 +424,8 @@ export default {
     },
     // инициализация удаления продуктов из таблицы
     initiateDataDeletion() {
-      // вызов экшена и передача ему массива с id выбранных продуктов
-      this.deleteData(this.selectedProducts);
+      // вызов экшена для удаления выбранных продуктов
+      this.deleteData();
       this.popupIsOn = false;
     },
     // eslint-disable-next-line consistent-return
@@ -448,8 +437,8 @@ export default {
       return {};
     },
     resetDeleteList() {
-      if (this.selectedProducts.length) {
-        this.selectedProducts = [];
+      if (this.getSelectedProducts.length) {
+        this.clearSelectedProducts();
       }
     },
     columnVisibilityManagement() {
