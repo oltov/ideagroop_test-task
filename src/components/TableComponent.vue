@@ -247,11 +247,7 @@
 </template>
 
 <script>
-import {
-  mapState,
-  mapActions,
-  mapMutations,
-} from 'vuex';
+import { mapActions, mapMutations } from 'vuex';
 import _chunk from 'lodash/chunk';
 import _forIn from 'lodash/forIn';
 import _findIndex from 'lodash/findIndex';
@@ -290,7 +286,9 @@ export default {
     };
   },
   computed: {
-    ...mapState(['tableHeadings', 'errorTextFromServer']),
+    tableHeadings() {
+      return this.$store.state.tableHeadings;
+    },
     tableData() {
       return _chunk(this.$store.state.products, this.productsPerPage)[[this.currentPageIndex - 1]];
     },
@@ -310,6 +308,8 @@ export default {
       return this.$store.state.responseFromServer;
     },
     errorDelete() {
+      // менять data антипаттерн, нужно переделать логику
+
       if (this.$store.state.responseFromServer.deleteResponse.isDeleted) {
         // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         this.selectedProducts = [];
@@ -335,6 +335,8 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['getData', 'deleteData']),
+    ...mapMutations(['changeIsDelete', 'changeIsError']),
     // переопределение активного состояния кнопок
     // в соответствии с нажатой кнопкой
     setActiveButton(item) {
@@ -475,8 +477,6 @@ export default {
     chengeError() {
       this.changeIsError();
     },
-    ...mapActions(['getData', 'deleteData']),
-    ...mapMutations(['changeIsDelete', 'changeIsError']),
   },
   created() {
     this.getData();
