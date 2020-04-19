@@ -21,4 +21,17 @@
         width: 50%;
         margin: 60px 10% 50%;
     }
+
+    &--fone{
+        position: absolute;
+        z-index: 15;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    &--error-massage {
+        width: 400px;
+        height: 130px;
+    }
 }

@@ -46,8 +46,9 @@ export default new Vuex.Store({
         serverMassege: '',
       },
       deleteResponse: {
-        isLoading: true,
+        isError: false,
         serverMassege: '',
+        isDeleted: false,
       },
     },
   },
@@ -60,8 +61,15 @@ export default new Vuex.Store({
       state.responseFromServer.getResponse.serverMassege = status.serverMassege;
     },
     refreshDeleteResponse(state, status) {
-      state.responseFromServer.deleteResponse.isLoading = status.isLoading;
+      state.responseFromServer.deleteResponse.isError = status.isError;
       state.responseFromServer.deleteResponse.serverMassege = status.serverMassege;
+      state.responseFromServer.deleteResponse.isDeleted = !status.isError;
+    },
+    changeIsDelete(state) {
+      state.responseFromServer.deleteResponse.isDeleted = false;
+    },
+    changeIsError(state) {
+      state.responseFromServer.deleteResponse.isError = false;
     },
     // сортировка данных по убыванию(if) и возрастанию(else)
     dataSorting(state, field) {
@@ -100,9 +108,11 @@ export default new Vuex.Store({
       deleteProducts()
         .then((resolve) => {
           commit('deleteApiData', data);
-          commit('refreshDeleteResponse', { isLoading: true, serverMassege: resolve.message });
+          commit('refreshDeleteResponse', { isError: false, serverMassege: resolve.message });
         })
-        .catch((reject) => commit('refreshDeleteResponse', { isLoading: false, serverMassege: reject.error }));
+        .catch((reject) => {
+          commit('refreshDeleteResponse', { isError: true, serverMassege: reject.error });
+        });
     },
   },
 });

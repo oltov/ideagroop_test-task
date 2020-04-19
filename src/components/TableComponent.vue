@@ -220,19 +220,30 @@
         >
           Confirm</button>
       </div>
-      <div v-if="!dataLoadingIsError.deleteResponse.isLoading" class="modal">
-        <p>
-          При удалении данных произошла ошибка:
-          {{ dataLoadingIsError.deleteResponse.serverMassege }},
-        </p>
-        <p>повторите попытку удаления позже.</p>
-      </div>
+      <div v-if="errorDelete.deleteResponse.isError" class="modal modal--fone">
+        <div class="modal modal--error-massage">
+          <p>
+            При удалении данных произошла ошибка:
+            {{ dataLoadingIsError.deleteResponse.serverMassege }},
+          </p>
+          <p>повторите попытку удаления позже.</p>
+          <button
+            class="buttons buttons--active"
+            @click="chengeError"
+          >OK</button>
+        </div>
+        <div class="modal modal--fone"></div>
+        </div>
     </div>
 </div>
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
+import {
+  mapState,
+  mapActions,
+  mapMutations,
+} from 'vuex';
 import _chunk from 'lodash/chunk';
 import _forIn from 'lodash/forIn';
 import _findIndex from 'lodash/findIndex';
@@ -289,13 +300,24 @@ export default {
     dataLoadingIsError() {
       return this.$store.state.responseFromServer;
     },
+    errorDelete() {
+      if (this.$store.state.responseFromServer.deleteResponse.isDeleted) {
+        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+        this.selectedProducts = [];
+        this.changeIsDelete();
+      }
+      return this.$store.state.responseFromServer;
+    },
   },
   watch: {
     tableData() {
+
       // markedProducts объект для хранения состояния(check) продуктов, для v-model
       // привязка будет по id продукта, переопределяется при каждой загрузке
       this.markedProducts = {};
+
       this.tableData.forEach((item) => {
+
         const product = { ...item };
         this.markedProducts[product.id] = false;
       });
@@ -320,9 +342,11 @@ export default {
     },
     reRenderColumns(name) {
       this.columnHeadings.forEach((el, index) => {
+
         // условие: если входящий и текущий элементы равны
         // и при этом текущий элемент не первый в массиве
         if (el.name === name.name && this.columnHeadings[0].name !== el.name) {
+
           // удаляем и сохраняем первый елемент, вставляем на его место текущий елемент
           const firstElement = this.columnHeadings.splice(0, 1, el);
 
@@ -400,12 +424,7 @@ export default {
     initiateDataDeletion() {
       // вызов экшена и передача ему массива с id выбранных продуктов
       this.deleteData(this.selectedProducts);
-      console.log(this.dataLoadingIsError.deleteResponse.isLoading);
-      // обнуление массива выбранных продуктов
       this.popupIsOn = false;
-      if (this.dataLoadingIsError.deleteResponse.isLoading) {
-        this.selectedProducts = [];
-      }
     },
     // eslint-disable-next-line consistent-return
     // установка обработчика только на 1 колонку, чтобы остальные не сортировались
@@ -442,7 +461,11 @@ export default {
         this.isShowTable = true;
       }
     },
+    chengeError() {
+      this.changeIsError();
+    },
     ...mapActions(['getData', 'deleteData']),
+    ...mapMutations(['changeIsDelete', 'changeIsError']),
   },
   created() {
     this.getData();
