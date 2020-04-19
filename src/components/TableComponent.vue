@@ -379,6 +379,8 @@ export default {
       this.$store.commit('dataSorting', value);
     },
     pageFlipping(value) {
+      this.resetDeleteList();
+
       if (value === 'prev') {
         this.currentPageIndex -= 1;
       }
