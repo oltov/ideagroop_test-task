@@ -160,12 +160,14 @@
                 :id="item.id"
                 :ref="item.id"
                 class="check check__input--off"
-                @click.stop="setSelectedId(item.id)"
                 v-model="markedProducts[item.id]"
+                @change.stop="setSelectedId(item.id)"
+                @click.stop
               >
               <label
                 :for="item.id"
                 class="check check__lable check__lable--product"
+                @click.stop
               ></label>
             </td>
             <td v-show="isVisibleProducts[headings[0]]"> {{ item[headings[0]] }} </td>
@@ -469,6 +471,9 @@ export default {
     },
     chengeError() {
       this.changeIsError();
+    },
+    del() {
+      console.log('клик по лейблу');
     },
   },
   created() {
