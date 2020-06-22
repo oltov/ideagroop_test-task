@@ -134,9 +134,9 @@ export default new Vuex.Store({
     deleteData({ commit }, data) {
       deleteProducts()
         .then((resolve) => {
-          commit('clearSelectedProducts', data);
           commit('deleteApiData', data);
           commit('refreshDeleteResponse', { isError: false, serverMassege: resolve.message });
+          commit('clearSelectedProducts', data);
         })
         .catch((reject) => {
           commit('refreshDeleteResponse', { isError: true, serverMassege: reject.error });

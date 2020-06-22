@@ -18,12 +18,12 @@
 
     &--delete--off {
         min-width: 80px;
-        opacity: 0;
+        display: none;
     }
 
     &--delete--on {
         min-width: 80px;
-        opacity: 1;
+        display: block;
 
         &::before {
             content: '';

@@ -80,7 +80,11 @@
         >
           6 columns selected
         </button>
-        <ul v-show="isColumnSelectionList" class="control-panel__selection-list">
+        <ul
+          v-show="isColumnSelectionList"
+          class="control-panel__selection-list"
+          @mouseleave="isColumnSelectionList = !isColumnSelectionList"
+        >
           <li class="control-panel__selection-item">
             <input
               type="checkbox" id="all-products"
@@ -119,6 +123,7 @@
   </div>
 
     <!-- таблица с продуктами -->
+
     <div>
       <table v-if="isShowTable && dataLoadingIsError.getResponse.isLoading" class="table">
 
@@ -132,6 +137,7 @@
                 id="all-prod"
                 class="check check__input--off"
                 @change="addAllSelectedProducts($event.target.checked)"
+                v-model="isAllSelectedProducts"
               >
               <label for="all-prod" class="check check__lable check__lable--product"></label>
             </th>
@@ -176,12 +182,11 @@
             <td v-show="isVisibleProducts[headings[3]]"> {{ item[headings[3]] }} </td>
             <td v-show="isVisibleProducts[headings[4]]"> {{ item[headings[4]] }} </td>
             <td v-show="isVisibleProducts[headings[5]]"> {{ item[headings[5]] }} </td>
-            <td class="table__bucket"
-              @click.stop="popupIsOn = true; oneElement = item.id"
-            >
+            <td class="table__bucket" @click.stop>
               <span
                 :class="{'buttons--delete--on': markedProducts[item.id]}"
                 class="buttons buttons--delete--off"
+                @click.stop="popupIsOn = true; oneElement = item.id"
               >
                 Delete
               </span>
@@ -222,7 +227,7 @@
       <button class="buttons buttons--modal" @click="popupIsOn = false">Cancel</button>
       <button
         class="buttons buttons--active buttons--modal"
-        @click="initiateDataDeletion()"
+        @click="initiateDataDeletion"
       >
         Confirm</button>
     </div>
@@ -286,6 +291,7 @@ export default {
       columnHeadings: null,
       markedProducts: {},
       oneElement: undefined,
+      isAllSelectedProducts: false,
     };
   },
   computed: {
@@ -318,9 +324,12 @@ export default {
     tableData() {
       // markedProducts объект для хранения состояния(check) продуктов, для v-model
       // привязка будет по id продукта, переопределяется при каждой загрузке
+      if (this.getSelectedProducts.length < this.productsPerPage) {
+        this.isAllSelectedProducts = false;
+      }
+
       this.markedProducts = {};
       this.tableData.forEach((item) => {
-        // const product = { ...item };
         const index = _findIndex(this.getSelectedProducts, (elem) => (elem === item.id));
         if (index > -1) {
           this.markedProducts[item.id] = true;
@@ -475,9 +484,6 @@ export default {
     },
     chengeError() {
       this.changeIsError();
-    },
-    del() {
-      console.log('клик по лейблу');
     },
   },
   created() {
