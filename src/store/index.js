@@ -115,10 +115,10 @@ export default new Vuex.Store({
         });
     },
     // метод удаляет данные и вызывает мутацию deleteApiData
-    deleteData({ commit }, data) {
+    deleteData({ commit }) {
       deleteProducts()
         .then((resolve) => {
-          commit('deleteApiData', data);
+          commit('deleteApiData');
           commit('refreshDeleteResponse', { isError: false, serverMassege: resolve.message });
           commit('clearSelectedProducts');
         })

@@ -174,7 +174,9 @@
             <td v-show="isVisibleProducts[headings[3]]"> {{ item[headings[3]] }} </td>
             <td v-show="isVisibleProducts[headings[4]]"> {{ item[headings[4]] }} </td>
             <td v-show="isVisibleProducts[headings[5]]"> {{ item[headings[5]] }} </td>
-            <td class="table__bucket" >
+            <td class="table__bucket"
+              @click.stop="popupIsOn = true"
+            >
               <span
                 :class="{'buttons--delete--on': markedProducts[item.id]}"
                 class="buttons buttons--delete--off"
