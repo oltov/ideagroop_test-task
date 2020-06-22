@@ -177,7 +177,7 @@
             <td v-show="isVisibleProducts[headings[4]]"> {{ item[headings[4]] }} </td>
             <td v-show="isVisibleProducts[headings[5]]"> {{ item[headings[5]] }} </td>
             <td class="table__bucket"
-              @click.stop="popupIsOn = true"
+              @click.stop="popupIsOn = true; oneElement = item.id"
             >
               <span
                 :class="{'buttons--delete--on': markedProducts[item.id]}"
@@ -222,7 +222,7 @@
       <button class="buttons buttons--modal" @click="popupIsOn = false">Cancel</button>
       <button
         class="buttons buttons--active buttons--modal"
-        @click="initiateDataDeletion"
+        @click="initiateDataDeletion()"
       >
         Confirm</button>
     </div>
@@ -253,7 +253,7 @@
 import { mapActions, mapMutations } from 'vuex';
 import _chunk from 'lodash/chunk';
 import _forIn from 'lodash/forIn';
-// import _findIndex from 'lodash/findIndex';
+import _findIndex from 'lodash/findIndex';
 
 export default {
   name: 'TableHeader',
@@ -285,6 +285,7 @@ export default {
       sortButtons: null,
       columnHeadings: null,
       markedProducts: {},
+      oneElement: undefined,
     };
   },
   computed: {
@@ -315,15 +316,17 @@ export default {
   },
   watch: {
     tableData() {
-
       // markedProducts объект для хранения состояния(check) продуктов, для v-model
       // привязка будет по id продукта, переопределяется при каждой загрузке
       this.markedProducts = {};
-
       this.tableData.forEach((item) => {
-
-        const product = { ...item };
-        this.markedProducts[product.id] = false;
+        // const product = { ...item };
+        const index = _findIndex(this.getSelectedProducts, (elem) => (elem === item.id));
+        if (index > -1) {
+          this.markedProducts[item.id] = true;
+        } else {
+          this.markedProducts[item.id] = false;
+        }
       });
     },
   },
@@ -431,8 +434,9 @@ export default {
     // инициализация удаления продуктов из таблицы
     initiateDataDeletion() {
       // вызов экшена для удаления выбранных продуктов
-      this.deleteData();
+      this.deleteData(this.oneElement);
       this.popupIsOn = false;
+      this.oneElement = undefined;
     },
     // eslint-disable-next-line consistent-return
     // установка обработчика только на 1 колонку, чтобы остальные не сортировались
