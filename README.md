@@ -1,5 +1,5 @@
-# ideagroop_test-task
-frontend job test task
+# vue_data-table
+frontend
 
 # table-component
 
