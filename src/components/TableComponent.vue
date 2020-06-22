@@ -158,7 +158,7 @@
           <tr
             class="table__body"
             v-for="(item, index) in tableData" :key="index"
-            @click.stop="chooseProduct(item.id)"
+            @click.stop="setSelectedId($event, item.id)"
           >
             <td class="table__head">
               <input
@@ -167,8 +167,6 @@
                 :ref="item.id"
                 class="check check__input--off"
                 v-model="markedProducts[item.id]"
-                @change.stop="setSelectedId(item.id)"
-                @click.stop
               >
               <label
                 :for="item.id"
@@ -413,7 +411,9 @@ export default {
     },
     // вызов мутации при нажатии на продукт,
     // для добавления в список выбранных продуктов
-    setSelectedId(id) {
+    setSelectedId($event, id) {
+      console.log($event.target);
+      this.markedProducts[id] = !this.markedProducts[id];
       this.addSelectedProduct(id);
     },
     // собираем массив из всех выбранных продуктов (check all)
@@ -435,10 +435,6 @@ export default {
           this.markedProducts[item.id] = true;
         });
       }
-    },
-    // генерация клика по инпуту в выбранной строке таблицы
-    chooseProduct(id) {
-      this.$refs[id][0].click();
     },
     // инициализация удаления продуктов из таблицы
     initiateDataDeletion() {
