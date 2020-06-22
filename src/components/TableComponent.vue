@@ -158,13 +158,12 @@
           <tr
             class="table__body"
             v-for="(item, index) in tableData" :key="index"
-            @click.stop="setSelectedId($event, item.id)"
+            @click.stop="setSelectedId(item.id)"
           >
             <td class="table__head">
               <input
                 type="checkbox"
                 :id="item.id"
-                :ref="item.id"
                 class="check check__input--off"
                 v-model="markedProducts[item.id]"
               >
@@ -411,8 +410,7 @@ export default {
     },
     // вызов мутации при нажатии на продукт,
     // для добавления в список выбранных продуктов
-    setSelectedId($event, id) {
-      console.log($event.target);
+    setSelectedId(id) {
       this.markedProducts[id] = !this.markedProducts[id];
       this.addSelectedProduct(id);
     },
