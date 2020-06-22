@@ -80,7 +80,11 @@
         >
           6 columns selected
         </button>
-        <ul v-show="isColumnSelectionList" class="control-panel__selection-list">
+        <ul
+          v-show="isColumnSelectionList"
+          class="control-panel__selection-list"
+          @mouseleave="isColumnSelectionList = !isColumnSelectionList"
+        >
           <li class="control-panel__selection-item">
             <input
               type="checkbox" id="all-products"
@@ -119,6 +123,7 @@
   </div>
 
     <!-- таблица с продуктами -->
+
     <div>
       <table v-if="isShowTable && dataLoadingIsError.getResponse.isLoading" class="table">
 
@@ -132,6 +137,7 @@
                 id="all-prod"
                 class="check check__input--off"
                 @change="addAllSelectedProducts($event.target.checked)"
+                v-model="isAllSelectedProducts"
               >
               <label for="all-prod" class="check check__lable check__lable--product"></label>
             </th>
@@ -160,12 +166,14 @@
                 :id="item.id"
                 :ref="item.id"
                 class="check check__input--off"
-                @click.stop="setSelectedId(item.id)"
                 v-model="markedProducts[item.id]"
+                @change.stop="setSelectedId(item.id)"
+                @click.stop
               >
               <label
                 :for="item.id"
                 class="check check__lable check__lable--product"
+                @click.stop
               ></label>
             </td>
             <td v-show="isVisibleProducts[headings[0]]"> {{ item[headings[0]] }} </td>
@@ -174,10 +182,11 @@
             <td v-show="isVisibleProducts[headings[3]]"> {{ item[headings[3]] }} </td>
             <td v-show="isVisibleProducts[headings[4]]"> {{ item[headings[4]] }} </td>
             <td v-show="isVisibleProducts[headings[5]]"> {{ item[headings[5]] }} </td>
-            <td class="table__bucket" >
+            <td class="table__bucket" @click.stop>
               <span
                 :class="{'buttons--delete--on': markedProducts[item.id]}"
                 class="buttons buttons--delete--off"
+                @click.stop="popupIsOn = true; oneElement = item.id"
               >
                 Delete
               </span>
@@ -249,7 +258,7 @@
 import { mapActions, mapMutations } from 'vuex';
 import _chunk from 'lodash/chunk';
 import _forIn from 'lodash/forIn';
-// import _findIndex from 'lodash/findIndex';
+import _findIndex from 'lodash/findIndex';
 
 export default {
   name: 'TableHeader',
@@ -281,6 +290,8 @@ export default {
       sortButtons: null,
       columnHeadings: null,
       markedProducts: {},
+      oneElement: undefined,
+      isAllSelectedProducts: false,
     };
   },
   computed: {
@@ -311,15 +322,20 @@ export default {
   },
   watch: {
     tableData() {
-
       // markedProducts объект для хранения состояния(check) продуктов, для v-model
       // привязка будет по id продукта, переопределяется при каждой загрузке
+      if (this.getSelectedProducts.length < this.productsPerPage) {
+        this.isAllSelectedProducts = false;
+      }
+
       this.markedProducts = {};
-
       this.tableData.forEach((item) => {
-
-        const product = { ...item };
-        this.markedProducts[product.id] = false;
+        const index = _findIndex(this.getSelectedProducts, (elem) => (elem === item.id));
+        if (index > -1) {
+          this.markedProducts[item.id] = true;
+        } else {
+          this.markedProducts[item.id] = false;
+        }
       });
     },
   },
@@ -427,8 +443,9 @@ export default {
     // инициализация удаления продуктов из таблицы
     initiateDataDeletion() {
       // вызов экшена для удаления выбранных продуктов
-      this.deleteData();
+      this.deleteData(this.oneElement);
       this.popupIsOn = false;
+      this.oneElement = undefined;
     },
     // eslint-disable-next-line consistent-return
     // установка обработчика только на 1 колонку, чтобы остальные не сортировались

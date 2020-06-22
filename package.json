@@ -56,7 +56,8 @@
         "always"
       ],
       "brace-style": [
-        "off", "always"
+        "off",
+        "always"
       ]
     }
   },

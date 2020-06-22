@@ -82,14 +82,22 @@ export default new Vuex.Store({
         state.isSortAscending = true;
       }
     },
-    deleteApiData(state) {
-      state.selectedProducts.forEach((id) => {
+    deleteApiData(state, data) {
+      if (data !== undefined) {
         state.products.forEach((item, index) => {
-          if (item.id === id) {
+          if (item.id === data) {
             state.products.splice(index, 1);
           }
         });
-      });
+      } else {
+        state.selectedProducts.forEach((id) => {
+          state.products.forEach((item, index) => {
+            if (item.id === id) {
+              state.products.splice(index, 1);
+            }
+          });
+        });
+      }
     },
     addSelectedProduct(state, id) {
       const index = _findIndex(state.selectedProducts, (item) => (item === id));
@@ -99,8 +107,16 @@ export default new Vuex.Store({
         state.selectedProducts.push(id);
       }
     },
-    clearSelectedProducts(state) {
-      state.selectedProducts = [];
+    clearSelectedProducts(state, data) {
+      if (data !== undefined) {
+        state.selectedProducts.forEach((item, index) => {
+          if (item === data) {
+            state.selectedProducts.splice(index, 1);
+          }
+        });
+      } else {
+        state.selectedProducts = [];
+      }
     },
   },
   actions: {
@@ -120,7 +136,7 @@ export default new Vuex.Store({
         .then((resolve) => {
           commit('deleteApiData', data);
           commit('refreshDeleteResponse', { isError: false, serverMassege: resolve.message });
-          commit('clearSelectedProducts');
+          commit('clearSelectedProducts', data);
         })
         .catch((reject) => {
           commit('refreshDeleteResponse', { isError: true, serverMassege: reject.error });
